@@ -1,0 +1,107 @@
+version: '3'
+services:
+  rabbit-frontend:
+    build:
+      context: frontend/docker
+      dockerfile: nginx/Dockerfile
+    volumes:
+      - ./frontend:/app
+    networks:
+      - traefik-public
+      - rabbit
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik-public
+      - traefik.http.routers.rabbit-frontend.rule=Host(`rabbit-frontend.localhost`)
+
+  rabbit-api:
+    build:
+      context: api/docker
+      dockerfile: nginx/Dockerfile
+    volumes:
+      - ./api:/app
+    networks:
+      - traefik-public
+      - rabbit
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik-public
+      - traefik.http.routers.rabbit-api.rule=Host(`rabbit-api.localhost`)
+
+  rabbit-api-php-fpm:
+    build:
+      context: api/docker
+      dockerfile: php-fpm/Dockerfile
+    volumes:
+      - ./api:/app
+    networks:
+      - rabbit
+
+  rabbit-api-php-cli:
+    build:
+      context: api/docker
+      dockerfile: php-cli/Dockerfile
+    volumes:
+      - ./api:/app
+    networks:
+      - rabbit
+
+  rabbit-ws-notifier:
+    build:
+      context: ws-notifier
+      dockerfile: docker/node/Dockerfile
+    volumes:
+      - ./ws-notifier/src:/app/src
+    command: sh -c '/bin/wait-for-it.sh  rabbit-mq:5672 --timeout=30 -- npm start'
+    networks:
+      - rabbit
+    tty: true
+
+  rabbit-email-sender:
+    build:
+      context: email-sender
+      dockerfile: docker/php-cli/Dockerfile
+    command: sh -c '/bin/wait-for-it.sh  rabbit-mq:5672 --timeout=30 -- php /app/src/worker.php'
+    volumes:
+      - ./email-sender:/app
+    networks:
+      - rabbit
+
+  rabbit-doc-converter:
+    build:
+      context: doc-converter
+      dockerfile: docker/php-cli/Dockerfile
+    command: sh -c '/bin/wait-for-it.sh  rabbit-mq:5672 --timeout=30 -- php /app/src/worker.php'
+    volumes:
+      - ./doc-converter:/app
+    networks:
+      - rabbit
+
+  rabbit-rpc-user-info:
+    build:
+      context: rpc-user-info
+      dockerfile: docker/php-cli/Dockerfile
+    command: sh -c '/bin/wait-for-it.sh  rabbit-mq:5672 --timeout=30 -- php /app/src/worker.php'
+    volumes:
+      - ./rpc-user-info:/app
+    networks:
+      - rabbit
+
+  rabbit-mq:
+    image: rabbitmq:3.10-management
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: secret
+    networks:
+      - traefik-public
+      - rabbit
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik-public
+      - traefik.http.routers.rabbit-mq.rule=Host(`rabbit-mq.localhost`)
+      - traefik.http.services.rabbit-mq.loadBalancer.server.port=15672
+
+networks:
+  traefik-public:
+    external: true
+  rabbit:

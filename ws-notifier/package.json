@@ -1,0 +1,12 @@
+{
+  "name": "rabbit-mq-consumer-example",
+  "version": "0.0.1",
+  "dependencies": {
+    "amqplib": "^0.10.2",
+    "express": "^4.18.1",
+    "socket.io": "^4.5.1"
+  },
+  "scripts": {
+    "start": "node src/index.js"
+  }
+}

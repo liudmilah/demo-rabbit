@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8"/>
+        <link rel="stylesheet" href="index.css">
+        <title>Rabbitmq</title>
+
+        <script src="https://cdn.socket.io/4.5.0/socket.io.min.js" integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k" crossorigin="anonymous"></script>
+        <script src="./index.js" defer></script>
+    </head>
+
+    <body>
+        <div id="app">
+            <h2>RabbitMQ demo</h2>
+
+            <div class="container">
+                <div class="column">
+                    <h4>Actions</h4>
+                    <button id="btn-notify-room" class="btn-run">Ws: notify room</button>
+                    <button id="btn-notify-all" class="btn-run">Ws: notify all</button>
+                    <button id="btn-job-email" class="btn-run">Job: send email</button>
+                    <button id="btn-job-convert" class="btn-run">Job: convert doc</button>
+                    <button id="btn-rpc" class="btn-run">Rpc: get user info</button>
+                </div>
+                <div class="column">
+                    <h4>Server responses</h4>
+                    <div id="server-response" class="alert"></div>
+                </div>
+                <div class="column">
+                    <h4>Room notifications</h4>
+                    <div id="ws-room" class="alert"></div>
+                </div>
+                <div class="column">
+                    <h4>Broadcast notifications</h4>
+                    <div id="ws-broadcast" class="alert"></div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
